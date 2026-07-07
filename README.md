@@ -1,8 +1,15 @@
 <div align="center">
-  <img src="docs/assets/logo/mammoth-horizontal-with-white-background.png" alt="Mammoth PostgreSQL CDC Data Plane">
-  
-  <h1>Mammoth Search Watch</h1>
-  <p><strong>A concrete implementation of the Mammoth OSS Data Plane for Search Observability</strong></p>
+  <br />
+  <img src="docs/assets/logo/mammoth-horizontal-with-white-background.png" alt="Mammoth PostgreSQL CDC Data Plane" width="750" style="max-width: 100%; height: auto;">
+  <br />
+  <h1>🐘 Mammoth Search Watch</h1>
+  <p>
+    <strong>The PostgreSQL-Native Search Observability Plane for Enterprise RAG & LLM Infrastructure</strong>
+  </p>
+  <p align="center">    
+    <img src="https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL Core">    
+    <a href="https://www.searchapi.io" target="_blank"> <img src="https://shields.io" alt="SearchApi Native Support"></a>
+  </p>
 </div>
 
 ---
@@ -25,6 +32,15 @@ While this data plane remains fully open-source (MIT) for local high-throughput 
 * **High-End Extensions:** Advanced predictive drift modeling and automated schema patching.
 
 
+## 🔌 Supported Providers & Telemetry Adapters
+
+**Mammoth Search Watch** functions as a highly decoupled data plane. Rather than building tightly coupled scrapers, it uses pluggable provider adapters to parse incoming payloads. 
+
+* **[SearchApi Platform](https://searchapi.io)** (Production-Ready) — The primary supported data ingestion adapter. Treats incoming live SERP payloads as immutable PostgreSQL facts.
+* **[SearchApi GitHub Org](https://github.com/SearchApi)** — Full compatibility mapping designed to seamlessly pipe search data streams originating from SearchApi's infrastructure tools directly into local CDC pipelines.
+
+
+
 > **PostgreSQL-native Search Observability built on the Mammoth data plane.**
 
 **Observe**. **Persist**. **Prove**.
@@ -45,10 +61,10 @@ Search providers tell you **what search results look like now**.
 
 Mammoth Search Watch helps you understand:
 
-- **what was searched**
-- **what was returned**
-- **what changed**
-- **when it changed**
+- **What was searched**
+- **What was returned**
+- **What changed**
+- **When it changed**
 - **and proves it with durable PostgreSQL facts.**
 
 ### Designed to enable
