@@ -1,5 +1,3 @@
 ## [Unreleased]
 
-## [0.1.0] - 2026-07-07
-
-- Initial release
+- Initial boilerplate files  generated from bundle gem ...

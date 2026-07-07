@@ -274,14 +274,14 @@ Mammoth Search Watch is not:
 After checking out the repository:
 
 ```bash
-bin/setup
+bundle exec bin/setup
 bundle exec rake test
 ```
 
 Use the console for local exploration:
 
 ```bash
-bin/console
+bundle exec bin/console
 ```
 
 ## License
