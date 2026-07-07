@@ -2,3 +2,5 @@
 # frozen_string_literal: true
 
 require "mammoth/search/watch"
+
+exit(Mammoth::Search::Watch::CLI.call(ARGV))
