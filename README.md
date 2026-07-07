@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/assets/logo/mammoth-horizontal.png " alt="Mammoth PostgreSQL CDC Data Plane" width="800">
+  <img src="docs/assets/logo/mammoth-horizontal-with-white-background.png" alt="Mammoth PostgreSQL CDC Data Plane">
   
   <h1>Mammoth Search Watch</h1>
   <p><strong>A concrete implementation of the Mammoth OSS Data Plane for Search Observability</strong></p>
