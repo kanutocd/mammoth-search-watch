@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: search_watch
+      POSTGRES_USER: mammoth_search_watch
+      POSTGRES_PASSWORD: mammoth_search_watch_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mammoth_search_watch -d search_watch"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  search-watch:
+    image: ghcr.io/kanutocd/mammoth-search-watch:latest
+    command: ["bundle", "exec", "mammoth-search-watch", "start"]
+    environment:
+      SEARCH_WATCH_CONFIG: /config/search_watch.yml
+      MAMMOTH_CONFIG: /config/mammoth.yml
+      DATABASE_URL: postgres://mammoth_search_watch:mammoth_search_watch_password@postgres:5432/search_watch
+      MAMMOTH_POSTGRES_PASSWORD: mammoth_search_watch_password
+    ports:
+      - "9292:9292"
+    volumes:
+      - ./config/search_watch.yml:/config/search_watch.yml:ro
+      - ./config/mammoth.yml:/config/mammoth.yml:ro
+      - mammoth_data:/app/.sqlite3
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  retention-cleaner:
+    image: ghcr.io/kanutocd/mammoth-search-watch:latest
+    command: ["bundle", "exec", "mammoth-search-watch", "retention-scheduler"]
+    environment:
+      SEARCH_WATCH_CONFIG: /config/search_watch.yml
+      DATABASE_URL: postgres://mammoth_search_watch:mammoth_search_watch_password@postgres:5432/search_watch
+    volumes:
+      - ./config/search_watch.yml:/config/search_watch.yml:ro
+      - mammoth_data:/app/.sqlite3
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  mammoth_data:

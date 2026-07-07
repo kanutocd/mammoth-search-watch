@@ -28,6 +28,18 @@ namespace :test do
   end
 end
 
+namespace :watch do
+  desc "Bootstrap the PostgreSQL schema"
+  task :bootstrap do
+    sh "bundle exec mammoth-search-watch bootstrap"
+  end
+
+  desc "Run retention cleanup"
+  task :retention_cleanup do
+    sh "bundle exec mammoth-search-watch retention-cleanup"
+  end
+end
+
 YARD::Rake::YardocTask.new(:yard)
 
 namespace :yard do
