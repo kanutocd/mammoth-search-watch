@@ -1,9 +1,29 @@
+<div align="center">
+  <img src="docs/assets/logo/mammoth-horizontal.png " alt="Mammoth PostgreSQL CDC Data Plane" width="800">
+  
+  <h1>Mammoth Search Watch</h1>
+  <p><strong>A concrete implementation of the Mammoth OSS Data Plane for Search Observability</strong></p>
+</div>
+
+---
+
 # Mammoth Search Watch
 
 [![Gem Version](https://badge.fury.io/rb/mammoth-search-watch.svg)](https://badge.fury.io/rb/mammoth-search-watch)
 [![CI](https://github.com/kanutocd/mammoth-search-watch/workflows/CI/badge.svg)](https://github.com/kanutocd/mammoth-search-watch/actions)
 [![Ruby Version](https://img.shields.io/badge/ruby-%3E%3D%204.0-ruby.svg)](https://www.ruby-lang.org/en/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+
+## 🌐 Part of the Mammoth Platform
+
+**Mammoth Search Watch** is a concrete production implementation of the open-source **Mammoth Data Plane**. 
+
+While this data plane remains fully open-source (MIT) for local high-throughput tracking, it natively integrates with the commercial **Mammoth Platform** ecosystem:
+* **Mammoth Control Plane:** Centralized cluster management, global analytics dashboarding, and alerting.
+* **Mammoth Control Agent:** Lightweight telemetry and remote configuration sync.
+* **High-End Extensions:** Advanced predictive drift modeling and automated schema patching.
+
 
 > **PostgreSQL-native Search Observability built on the Mammoth data plane.**
 
@@ -298,6 +318,13 @@ volumes:
   postgres_data:
 ```
 
+Concrete deployment manifests are available in [docker-compose.yml](./docker-compose.yml) and the split Kubernetes manifests under `k8s/` folder.
+
+```bash
+docker compose up -d
+kubectl apply -k k8s
+```
+
 ## Kubernetes and Helm
 
 Mammoth Search Watch should reuse the Mammoth deployment model where possible.
@@ -336,6 +363,23 @@ To bootstrap the PostgreSQL schema:
 
 ```bash
 bundle exec mammoth-search-watch bootstrap config/search_watch.yml
+```
+
+To run retention cleanup:
+
+```bash
+bundle exec mammoth-search-watch retention-cleanup config/search_watch.yml
+```
+
+`mammoth-search-watch start` bootstraps the schema automatically unless
+`lifecycle.bootstrap_on_start` is set to `false`.
+
+In Docker images, the container entrypoint should call `mammoth-search-watch start`.
+
+For a long-running periodic cleanup worker, use:
+
+```bash
+bundle exec mammoth-search-watch retention-scheduler config/search_watch.yml
 ```
 
 Use the console for local exploration:
