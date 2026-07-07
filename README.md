@@ -7,8 +7,8 @@
     <strong>The PostgreSQL-Native Search Observability Plane for Enterprise RAG & LLM Infrastructure</strong>
   </p>
   <p align="center">    
-    <img src="https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL Core">    
-    <a href="https://www.searchapi.io" target="_blank"> <img src="https://shields.io" alt="SearchApi Native Support"></a>
+    <img src="https://img.shields.io/badge/postgresql-4169e1" alt="PostgreSQL Core">    
+    <a href="https://www.searchapi.io" target="_blank"> <img src="https://img.shields.io/badge/SearchApi-Native%20Support" alt="SearchApi Native Support"></a>
   </p>
 </div>
 
