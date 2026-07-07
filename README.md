@@ -5,11 +5,60 @@
 [![Ruby Version](https://img.shields.io/badge/ruby-%3E%3D%204.0-ruby.svg)](https://www.ruby-lang.org/en/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Mammoth Search Watch observes SERP/search API request-response activity, persists normalized observation facts into PostgreSQL, and lets Mammoth deliver resulting changes through WAL-backed delivery.
+> **PostgreSQL-native Search Observability built on the Mammoth data plane.**
+
+**Observe**. **Persist**. **Prove**.
+
+Mammoth Search Watch transforms SERP/search API interactions into durable PostgreSQL facts carried through Mammoth's WAL data plane.
+
+Unlike traditional rank trackers, SEO dashboards, and search monitoring tools, Mammoth Search Watch is designed as a **Search Observability Platform**.
+
+Its philosophy is simple:
+
+> **Observe reality. Persist facts. Deliver changes.**
+
+---
+
+## Why Mammoth Search Watch?
+
+Search providers tell you **what search results look like now**.
+
+Mammoth Search Watch helps you understand:
+
+- **what was searched**
+- **what was returned**
+- **what changed**
+- **when it changed**
+- **and proves it with durable PostgreSQL facts.**
+
+### Designed to enable
+
+- 🔍 Search Observability
+- 📈 SERP Drift Detection
+- 🕒 Historical Search Intelligence
+- 📋 Compliance & Audit Trails
+- ⚖️ Conflict Resolution
+- 🔄 Replayable Search Events
+- 📊 Search Analytics
+- 🧠 AI-ready Search Data
+- 💰 Search Budget Optimization
+- 🏢 Multi-tenant Operation
+
+These capabilities are built on a single principle:
+
+> **Observation first. Inference later.**
+
+Search observations become durable PostgreSQL facts.
+
+Everything else—drift detection, analytics, dashboards, AI, replay, compliance, competitive intelligence, and operational intelligence—is derived from those facts.
+
+---
+
+Mammoth Search Watch observes SERP/search API request-response activity, persists normalized observation facts into PostgreSQL, and embeds Mammoth by default to deliver resulting changes through WAL-backed delivery.
 
 **Mammoth Search Watch** is a SERP observation and drift-capture service built on the Mammoth data plane.
 
-It captures SERP request/response observations, persists them as PostgreSQL facts, and lets Mammoth carry the resulting changes through PostgreSQL WAL, replication slots, and reliable downstream delivery.
+It captures SERP request/response observations, persists them as PostgreSQL facts, and embeds Mammoth so the resulting changes can move through PostgreSQL WAL, replication slots, and reliable downstream delivery.
 
 SearchAPI is the first supported provider adapter.
 
@@ -27,11 +76,15 @@ Mammoth
 Webhook / downstream delivery
 ```
 
-Mammoth Search Watch is intentionally **PostgreSQL-first**, **WAL-centric**, and **operationally boring**. It is not a generic HTTP event bus, not a scraper, and not an SEO dashboard.
+Mammoth Search Watch is intentionally **PostgreSQL-first**, **WAL-centric**, and **operationally boring**. It is not a generic HTTP event bus, not a scraper, and not an SEO dashboard. Sink-only mode is available when you opt out of the embedded Mammoth runtime.
 
 ## Status
 
-Early development. The public contract and storage model may change before `1.0`.
+**Project Status:** Early development.
+
+The current implementation focuses on establishing the PostgreSQL-first observation pipeline and Mammoth integration.
+
+The capabilities described in this document represent the long-term vision of Mammoth Search Watch and will be delivered incrementally as the project evolves toward `1.0`.
 
 ## Core idea
 
@@ -50,7 +103,7 @@ PostgreSQL insert
 Mammoth delivery
 ```
 
-## Intended audiences
+## Who is it for?
 
 Mammoth Search Watch is useful for two related audiences:
 
@@ -59,11 +112,11 @@ Mammoth Search Watch is useful for two related audiences:
 
 ## Architecture boundary
 
-Mammoth Search Watch creates PostgreSQL facts. Mammoth operates and delivers them.
+Mammoth Search Watch creates PostgreSQL facts. Mammoth operates and delivers them, either embedded by default or as an external service in sink-only mode.
 
 ```text
 Mammoth Search Watch
-  owns: observation ingestion, normalization, retention, drift fact persistence
+  owns: observation ingestion, normalization, retention, drift fact persistence, embedded Mammoth runtime
 
 Mammoth
   owns: WAL consumption, replication slot handling, delivery, retries, dead letters, health, metrics
@@ -141,6 +194,11 @@ VALUES (
 COMMIT;
 ```
 
+If the deployment is not multi-tenant, configure a global tenant id and
+use it for every insert. The table still stores `tenant_id` on each row;
+the value just comes from deployment configuration instead of request
+context.
+
 ## Watch key and result hash
 
 Mammoth Search Watch separates request identity from response identity.
@@ -212,30 +270,26 @@ ghcr.io/kanutocd/mammoth-search-watch:latest
 ghcr.io/kanutocd/mammoth-search-watch:v0.1.0
 ```
 
-A typical local deployment uses separate containers for PostgreSQL, Mammoth, Mammoth Search Watch, and a webhook receiver.
+The default local deployment keeps Mammoth embedded in the Search Watch
+process.
 
 ```yaml
 services:
   postgres:
     image: postgres:17
 
-  mammoth:
-    image: ghcr.io/kanutocd/mammoth:latest
-    environment:
-      MAMMOTH_CONFIG: /config/mammoth.yml
-    volumes:
-      - ./config/mammoth.yml:/config/mammoth.yml:ro
-      - mammoth_data:/app/.sqlite3
-    depends_on:
-      - postgres
-
   search-watch:
     image: ghcr.io/kanutocd/mammoth-search-watch:latest
     environment:
       DATABASE_URL: postgres://mammoth_search_watch:secret@postgres:5432/search_watch
-      SEARCH_WATCH_RETENTION: 24h
+      SEARCH_WATCH_CONFIG: /config/search_watch.yml
+      MAMMOTH_CONFIG: /config/mammoth.yml
     ports:
       - "9292:9292"
+    volumes:
+      - ./config/search_watch.yml:/config/search_watch.yml:ro
+      - ./config/mammoth.yml:/config/mammoth.yml:ro
+      - mammoth_data:/app/.sqlite3
     depends_on:
       - postgres
 
@@ -276,6 +330,12 @@ After checking out the repository:
 ```bash
 bundle exec bin/setup
 bundle exec rake test
+```
+
+To bootstrap the PostgreSQL schema:
+
+```bash
+bundle exec mammoth-search-watch bootstrap config/search_watch.yml
 ```
 
 Use the console for local exploration:
