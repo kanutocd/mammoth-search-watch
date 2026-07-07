@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-watch
+  namespace: mammoth-search-watch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: search-watch
+  template:
+    metadata:
+      labels:
+        app: search-watch
+    spec:
+      containers:
+        - name: search-watch
+          image: ghcr.io/kanutocd/mammoth-search-watch:latest
+          command: ["bundle", "exec", "mammoth-search-watch", "start"]
+          ports:
+            - containerPort: 9292
+          env:
+            - name: SEARCH_WATCH_CONFIG
+              value: /config/search_watch.yml
+            - name: MAMMOTH_CONFIG
+              value: /config/mammoth.yml
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: search-watch-secret
+                  key: DATABASE_URL
+            - name: MAMMOTH_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: search-watch-secret
+                  key: MAMMOTH_POSTGRES_PASSWORD
+          volumeMounts:
+            - name: search-watch-config
+              mountPath: /config/search_watch.yml
+              subPath: search_watch.yml
+            - name: mammoth-config
+              mountPath: /config/mammoth.yml
+              subPath: mammoth.yml
+            - name: mammoth-data
+              mountPath: /app/.sqlite3
+      volumes:
+        - name: search-watch-config
+          configMap:
+            name: search-watch-config
+        - name: mammoth-config
+          configMap:
+            name: search-watch-config
+        - name: mammoth-data
+          persistentVolumeClaim:
+            claimName: mammoth-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: search-watch
+  namespace: mammoth-search-watch
+spec:
+  selector:
+    app: search-watch
+  ports:
+    - port: 9292
+      targetPort: 9292

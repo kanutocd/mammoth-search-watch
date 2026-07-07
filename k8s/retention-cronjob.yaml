@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: search-watch-retention
+  namespace: mammoth-search-watch
+spec:
+  schedule: "0 2 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: retention-cleaner
+              image: ghcr.io/kanutocd/mammoth-search-watch:latest
+              command: ["bundle", "exec", "mammoth-search-watch", "retention-cleanup"]
+              env:
+                - name: SEARCH_WATCH_CONFIG
+                  value: /config/search_watch.yml
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: search-watch-secret
+                      key: DATABASE_URL
+              volumeMounts:
+                - name: search-watch-config
+                  mountPath: /config/search_watch.yml
+                  subPath: search_watch.yml
+                - name: mammoth-data
+                  mountPath: /app/.sqlite3
+          volumes:
+            - name: search-watch-config
+              configMap:
+                name: search-watch-config
+            - name: mammoth-data
+              persistentVolumeClaim:
+                claimName: mammoth-data

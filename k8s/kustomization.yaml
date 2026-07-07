@@ -1,0 +1,8 @@
+resources:
+  - namespace.yaml
+  - persistent-volume-claims.yaml
+  - configmap.yaml
+  - secret.yaml
+  - postgres.yaml
+  - search-watch.yaml
+  - retention-cronjob.yaml

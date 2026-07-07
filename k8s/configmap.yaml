@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: search-watch-config
+  namespace: mammoth-search-watch
+data:
+  search_watch.yml: |
+    runtime:
+      mode: embedded
+
+    webhook:
+      server: agoo
+      host: 0.0.0.0
+      port: 9292
+      path: /webhooks/mammoth/search-watch
+      threads: 4
+      max_body_bytes: 1048576
+
+    database:
+      url_env: DATABASE_URL
+      role: mammoth_search_watch
+
+    tenancy:
+      enabled: true
+      tenant_header: x-mammoth-tenant-id
+      default_tenant_id: tenant_default
+
+    retention:
+      activities:
+        enabled: true
+        ttl: 24h
+      observations:
+        enabled: true
+        ttl: 72h
+      drifts:
+        enabled: true
+        ttl: 168h
+      scheduler:
+        interval_seconds: 86400
+
+    mammoth:
+      embedded: true
+      config_path: /config/mammoth.yml
+
+    lifecycle:
+      bootstrap_on_start: true
+  mammoth.yml: |
+    mammoth:
+      name: mammoth-search-watch
+
+    postgres:
+      host: postgres
+      port: 5432
+      database: search_watch
+      username: mammoth_search_watch
+      password_env: MAMMOTH_POSTGRES_PASSWORD
+
+    replication:
+      slot: mammoth_search_watch
+      publications:
+        - mammoth_publication
+      auto_create_slot: true
+      temporary_slot: false
+      feedback_interval: 2.0
+
+    retry:
+      max_attempts: 5
+      schedule_seconds:
+        - 1
+        - 5
+        - 15
+        - 60
+
+    sqlite:
+      path: /app/.sqlite3/mammoth.sqlite3
+
+    logging:
+      level: info
+
+    webhook:
+      name: search_watch_sink
+      url: http://search-watch:9292/webhooks/mammoth/search-watch
+      timeout_seconds: 5
+
+    delivery:
+      unit: event
